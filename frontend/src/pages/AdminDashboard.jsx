@@ -9,6 +9,8 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [form, setForm] = useState({ category_id: "", nama_produk: "", deskripsi: "", harga_sewa: "", stok: "", gambar: "" });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
@@ -42,26 +44,43 @@ export default function AdminDashboard() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
-    try {
-      if (editData) {
-        await API.put(`/products/${editData.id}`, form);
-      } else {
-        await API.post("/products", form);
-      }
-      setShowModal(false);
-      setEditData(null);
-      setForm({ category_id: "", nama_produk: "", deskripsi: "", harga_sewa: "", stok: "", gambar: "" });
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const formData = new FormData();
+    formData.append("category_id", form.category_id);
+    formData.append("nama_produk", form.nama_produk);
+    formData.append("deskripsi", form.deskripsi);
+    formData.append("harga_sewa", form.harga_sewa);
+    formData.append("stok", form.stok);
+    if (imageFile) formData.append("gambar", imageFile);
+    else if (form.gambar) formData.append("gambar", form.gambar);
 
-  const handleEdit = (p) => {
-    setEditData(p);
-    setForm({ category_id: p.category_id, nama_produk: p.nama_produk, deskripsi: p.deskripsi, harga_sewa: p.harga_sewa, stok: p.stok, gambar: p.gambar });
-    setShowModal(true);
-  };
+    if (editData) {
+      await API.put(`/products/${editData.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+    } else {
+      await API.post("/products", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+    }
+    setShowModal(false);
+    setEditData(null);
+    setForm({ category_id: "", nama_produk: "", deskripsi: "", harga_sewa: "", stok: "", gambar: "" });
+    setImageFile(null);
+    setImagePreview(null);
+    fetchProducts();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+ const handleEdit = (p) => {
+  setEditData(p);
+  setForm({ category_id: p.category_id, nama_produk: p.nama_produk, deskripsi: p.deskripsi, harga_sewa: p.harga_sewa, stok: p.stok, gambar: p.gambar });
+  setImagePreview(p.gambar ? `${import.meta.env.VITE_API_URL}/uploads/${p.gambar}` : null);
+  setImageFile(null);
+  setShowModal(true);
+};
 
   const handleDelete = async (id) => {
     if (!confirm("Hapus produk ini?")) return;
@@ -239,10 +258,27 @@ export default function AdminDashboard() {
                 <input name="stok" type="number" value={form.stok} placeholder="3" onChange={handleChange} />
               </div>
             </div>
-            <div className="ad-field">
-              <label>Nama File Gambar</label>
-              <input name="gambar" value={form.gambar} placeholder="iphone14.jpg" onChange={handleChange} />
-            </div>
+           <div className="ad-field">
+  <label>Gambar Produk</label>
+  <label style={{
+    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    border: "2px dashed #0d2440", borderRadius: 8, padding: 20, cursor: "pointer",
+    background: "#071525"
+  }}>
+    {imagePreview ? (
+      <img src={imagePreview} alt="preview" style={{ width: "100%", maxHeight: 160, objectFit: "cover", borderRadius: 6 }} />
+    ) : (
+      <>
+        <div style={{ fontSize: 32 }}>📷</div>
+        <div style={{ color: "#4a6380", fontSize: 13, marginTop: 8 }}>Klik untuk upload gambar</div>
+      </>
+    )}
+    <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) { setImageFile(file); setImagePreview(URL.createObjectURL(file)); }
+    }} />
+  </label>
+</div>
             <div className="ad-modal-footer">
               <button className="ad-cancel-btn" onClick={() => setShowModal(false)}>Batal</button>
               <button className="ad-save-btn" onClick={handleSubmit}>{editData ? "Simpan Perubahan" : "Tambah Produk"}</button>

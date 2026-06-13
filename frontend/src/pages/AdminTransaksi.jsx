@@ -267,7 +267,7 @@ export default function AdminTransaksi() {
                       </span>
                       {t.bukti_bayar && t.payment_status === "unpaid" && (
                         <div style={{marginTop:6, display:"flex", flexDirection:"column", gap:4}}>
-                        <a href={`http://localhost:5000/uploads/${t.bukti_bayar}`} target="_blank" rel="noreferrer" style={{fontSize:11, color:"#0099ff"}}>
+                        <a href={`${import.meta.env.VITE_API_URL}/uploads/${t.bukti_bayar}`} target="_blank" rel="noreferrer" style={{fontSize:11, color:"#0099ff"}}>
                          🖼 Lihat Bukti
                          </a>
                        <button className="at-btn at-btn-ambil" onClick={() => confirmPayment(t.id)}>✓ Konfirmasi Lunas</button>

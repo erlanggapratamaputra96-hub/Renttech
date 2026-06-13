@@ -118,7 +118,17 @@ export default function Dashboard() {
           <div className="db-grid">
             {products.map((p) => (
               <div key={p.id} className="db-card">
-                <div className="db-card-img">{p.nama_kategori === "HP" ? "📱" : "📷"}</div>
+               <div className="db-card-img">
+  {p.gambar ? (
+    <img 
+      src={`${import.meta.env.VITE_API_URL}/uploads/${p.gambar}`} 
+      alt={p.nama_produk}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : (
+    <span>{p.nama_kategori === "HP" ? "📱" : "📷"}</span>
+  )}
+</div>
                 <div className="db-card-body">
                   <div className="db-card-kategori">{p.nama_kategori}</div>
                   <div className="db-card-nama">{p.nama_produk}</div>
