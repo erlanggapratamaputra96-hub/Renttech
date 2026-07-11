@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const dns = require('dns');
 require('dotenv').config();
 
-// paksa Node pakai Google DNS, bypass resolver default yang mungkin diblokir
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 mongoose.set('strictQuery', false);
@@ -21,3 +20,7 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
+
+
+
+
